@@ -1,0 +1,15 @@
+header{
+  background: $bgmain !important;
+  margin-bottom: 100px;
+  #navbar-top{
+    background: $bgmain !important;
+  }
+  #navbar-main{
+    background: $bgmain !important;
+    .navbar-brand{
+      img{
+        width: 100px;
+      }
+    }
+  }
+}
