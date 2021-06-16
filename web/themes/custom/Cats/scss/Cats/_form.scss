@@ -1,0 +1,24 @@
+.alexandr-form-cats{
+  margin-bottom: 80px;
+  .cats-title{
+    color: $accent-shade;
+    font-weight: bold;
+  }
+  label{
+    color: $accent-shade;
+  }
+  input{
+    border-radius: 20px;
+    border-color: $accent-shade;
+  }
+  .description{
+    color: $red;
+  }
+  .form-submit{
+    display: block;
+    margin: 0 auto;
+    width: 200px;
+    border-radius: 50px;
+    text-transform: uppercase;
+  }
+}
