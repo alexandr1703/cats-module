@@ -2,9 +2,9 @@
 
 namespace Drupal\alexandr\Form;
 
-
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+
 
 
 class AlexandrForm extends FormBase {
@@ -13,7 +13,6 @@ class AlexandrForm extends FormBase {
   }
 
   public function buildForm(array $form, FormStateInterface $form_state) {
-
     $form['cat'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Your cat’s name:'),
@@ -31,6 +30,16 @@ class AlexandrForm extends FormBase {
     return $form;
   }
 
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    $cat = $form_state->getValue('cat');
+    $text ="Your cat name: $cat";
+    if (strlen($form_state->getValue('cat')) <= 1) {
+      \Drupal::messenger()->addError('The name is too short. Please enter a longer name.');
+    }
+    if(strlen($form_state->getValue('cat')) >1) {
+      \Drupal::messenger()->addMessage($this->t('Your cat name: %cat', ['%cat' => $cat]));
+    }
+  }
   public function submitForm(array &$form, FormStateInterface $form_state){
   }
 
