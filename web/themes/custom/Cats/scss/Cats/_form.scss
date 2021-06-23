@@ -21,4 +21,36 @@
     border-radius: 50px;
     text-transform: uppercase;
   }
+  .alert{
+    display: none;
+  }
+  #form-system-messages{
+    .alert{
+      display: inline-block;
+    }
+    .alert-danger{
+      ul{
+        li{
+          a{
+            color: $textcolor;
+          }
+        }
+      }
+    }
+  }
+  .image-widget{
+    .file{
+      background: $gray-100;
+      a{
+        color: $textcolor;
+      }
+    }
+    button{
+      margin-top: 20px;
+      width: 100px;
+    }
+    .messages--error{
+      color: $red;
+    }
+  }
 }

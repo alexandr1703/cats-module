@@ -24,16 +24,6 @@ class AlexandrForm extends FormBase {
     ];
 
 
-    $form['cat'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Your cat’s name:'),
-      '#required' => TRUE,
-      '#maxlength' => 32,
-      '#minlength' => 2,
-      '#description' => $this->t('Please fill in the field from 2 to 32 characters'),
-    ];
-
-
     $form['email'] = [
       '#type' => 'email',
       '#title' => $this->t('Your email'),
@@ -47,12 +37,37 @@ class AlexandrForm extends FormBase {
           'message' => t('Verifying email..'),
         ),
       ],
-      '#prefix' => '<div id = "cats-email">',
     ];
 
+    $form['cat'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Your cat’s name:'),
+      '#required' => TRUE,
+      '#maxlength' => 32,
+      '#minlength' => 2,
+      '#description' => $this->t('Please fill in the field from 2 to 32 characters'),
+    ];
+
+
+
+//
     $form['email-messages'] = [
       '#markup' => '<div id="email-messages"></div>',
       '#weight' => -100,
+    ];
+
+    $form['image'] = [
+      '#type' => 'managed_file',
+      '#title' => t('Image'),
+      '#description' => t('Click "Browse..." to select an image to upload.Only png, jpg and jpeg.Max size 2Mb.'),
+      '#upload_validators' => [
+        'file_validate_extensions' => ['png jpg jpeg'],
+        'file_validate_size' => [2097152],
+      ],
+      '#theme' => 'image_widget',
+      '#preview_image_style' => 'medium',
+//      '#upload_location' => '//public',
+      '#required' => TRUE
     ];
 
     $form['submit'] = [
@@ -74,37 +89,43 @@ class AlexandrForm extends FormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $cat = $form_state->getValue('cat');
     $email = $form_state->getValue('email');
-    $errorArray = [0, 0];
+    $image = $form_state->getValue('image');
+    $errorArray = [0, 0, 0];
     if (strlen($cat) == 1) {
       \Drupal::messenger()->addError('The name is too short. Please enter a longer name.');
     }
-    if(strlen($cat) >1) {
-//      \Drupal::messenger()->addMessage($this->t('Your cat name: %cat', ['%cat' => $cat]));
+    elseif(strlen($cat) >1) {
       $errorArray[0]=1;
     }
-    if (strlen($cat) == '') {
-      \Drupal::messenger()->addError('This field is required!!!');
+    elseif (strlen($cat) == '') {
+      \Drupal::messenger()->addError('Enter your cats name');
     }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]+[.]+[a-z]+$/', $email)) {
-      \Drupal::messenger()->addError($this->t('Your email is invalid'));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]{2,12}+[.]+[a-z]{2,7}+$/', $email)) {
+      \Drupal::messenger()->addError($this->t('Enter valid Email'));
+      $errorArray[1]=0;
     }
     else{
-//      \Drupal::messenger()->addMessage($this->t('Your email is valid'));
       $errorArray[1]=1;
     }
-    if ($errorArray[0]==1 && $errorArray[1]==1){
-      \Drupal::messenger()->addMessage($this->t('Your cat name: %cat', ['%cat' => $cat]));
+    if ($image){
+      $errorArray[2]=1;
+    }
+    else{
+      \Drupal::messenger()->addError($this->t('Download image'));
+    }
+    if ($errorArray[0]==1 && $errorArray[1]==1 && $errorArray[2]==1){
+      \Drupal::messenger()->addMessage($this->t('Your cat name: %cat. Form successfully submitted!', ['%cat' => $cat] ));
     }
   }
 
   public function valideEmail(array &$form, FormStateInterface $form_state){
     $ajax_response = new AjaxResponse();
     $email = $form_state->getValue('email');
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]+[.]+[a-z]+$/', $email)) {
-      $ajax_response->addCommand(new HtmlCommand('#email-messages', 'This email is invalid'));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]{2,12}+[.]+[a-z]{2,7}+$/', $email)) {
+      $ajax_response->addCommand(new HtmlCommand('#form-system-messages', 'This email is invalid'));
     }
     else {
-      $ajax_response->addCommand(new HtmlCommand('#email-messages', $email));
+      $ajax_response->addCommand(new HtmlCommand('#form-system-messages', $email));
     }
     return $ajax_response;
   }
@@ -126,7 +147,6 @@ class AlexandrForm extends FormBase {
     return $ajax_response;
 
   }
-
 
 
   public function submitForm(array &$form, FormStateInterface $form_state){
