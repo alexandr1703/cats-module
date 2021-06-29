@@ -8,10 +8,28 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\AlertCommand;
 use Drupal\Core\Ajax\HtmlCommand;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 
 class AlexandrForm extends FormBase {
+  /**
+   * The current time.
+   *
+   * @var \Drupal\Core\Datatime
+   */
+  protected $currentTime;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->currentTime = $container->get('datetime.time');
+    return $instance;
+  }
+
+
   public function getFormId() {
     return 'alexandr_form_cats';
   }
@@ -145,11 +163,24 @@ class AlexandrForm extends FormBase {
     $ajax_response->addCommand(new HtmlCommand('#form-system-messages', $messages));
     $this->messenger()->deleteAll();
     return $ajax_response;
-
   }
 
 
   public function submitForm(array &$form, FormStateInterface $form_state){
+    $connection = \Drupal::service('database');
+    $file = file_save_upload('image', array(), 'public://');
+    $fid = $file->fid;
+
+    $connection->insert('alexandr')
+      ->fields([
+        'name' => $form_state->getValue('cat'),
+        'email' => $form_state->getValue('email'),
+        'uid' => $this->currentUser()->id(),
+        'created' => date('d-m-Y', $this->currentTime->getCurrentTime()),
+        'image' => $form_state->getValue('image')[0],
+      ])
+      ->execute();
+    \Drupal::messenger()->addMessage($this->t('Form Submitted Successfully'), 'status', TRUE);
   }
 
 
