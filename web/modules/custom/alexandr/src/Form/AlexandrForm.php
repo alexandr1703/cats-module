@@ -3,12 +3,16 @@
 namespace Drupal\alexandr\Form;
 
 use Drupal\Core\Ajax\InsertCommand;
+use Drupal\Core\Ajax\RedirectCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\AlertCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\file\Entity\File;
+use Drupal\Core\Url;
+
 
 
 
@@ -16,7 +20,6 @@ class AlexandrForm extends FormBase {
   /**
    * The current time.
    *
-   * @var \Drupal\Core\Datatime
    */
   protected $currentTime;
 
@@ -26,6 +29,7 @@ class AlexandrForm extends FormBase {
   public static function create(ContainerInterface $container) {
     $instance = parent::create($container);
     $instance->currentTime = $container->get('datetime.time');
+
     return $instance;
   }
 
@@ -67,8 +71,6 @@ class AlexandrForm extends FormBase {
     ];
 
 
-
-//
     $form['email-messages'] = [
       '#markup' => '<div id="email-messages"></div>',
       '#weight' => -100,
@@ -77,14 +79,14 @@ class AlexandrForm extends FormBase {
     $form['image'] = [
       '#type' => 'managed_file',
       '#title' => t('Image'),
-      '#description' => t('Click "Browse..." to select an image to upload.Only png, jpg and jpeg.Max size 2Mb.'),
+      '#description' => t('Only png, jpg and jpeg.Max size 2Mb.'),
       '#upload_validators' => [
         'file_validate_extensions' => ['png jpg jpeg'],
         'file_validate_size' => [2097152],
       ],
       '#theme' => 'image_widget',
       '#preview_image_style' => 'medium',
-//      '#upload_location' => '//public',
+      '#upload_location' => 'public://module_image',
       '#required' => TRUE
     ];
 
@@ -132,7 +134,8 @@ class AlexandrForm extends FormBase {
       \Drupal::messenger()->addError($this->t('Download image'));
     }
     if ($errorArray[0]==1 && $errorArray[1]==1 && $errorArray[2]==1){
-      \Drupal::messenger()->addMessage($this->t('Your cat name: %cat. Form successfully submitted!', ['%cat' => $cat] ));
+      \Drupal::messenger()->addMessage($this->t('Your cat name: %cat . Form submited)))', ['%cat' => $cat] ));
+      return TRUE;
     }
   }
 
@@ -162,25 +165,34 @@ class AlexandrForm extends FormBase {
     $messages = \Drupal::service('renderer')->render($message);
     $ajax_response->addCommand(new HtmlCommand('#form-system-messages', $messages));
     $this->messenger()->deleteAll();
+    if($this->validateForm($form, $form_state)==TRUE){
+      $ajax_response->addCommand(new RedirectCommand('/alexandr/cats'));
+    }
     return $ajax_response;
   }
 
 
+  /**
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
   public function submitForm(array &$form, FormStateInterface $form_state){
-    $connection = \Drupal::service('database');
-    $file = file_save_upload('image', array(), 'public://');
-    $fid = $file->fid;
+    if($this->validateForm($form, $form_state)==TRUE){
+      $connection = \Drupal::service('database');
+      $file = File::load($form_state->getValue('image')[0]);
+      $file->setPermanent();
+      $file->save();
+      $connection->insert('alexandr')
+        ->fields([
+          'name' => $form_state->getValue('cat'),
+          'email' => $form_state->getValue('email'),
+          'uid' => $this->currentUser()->id(),
+          'created' => date('d-M-Y  H:i', $this->currentTime->getCurrentTime()),
+          'image' => $form_state->getValue('image')[0],
+        ])
+        ->execute();
+    }
 
-    $connection->insert('alexandr')
-      ->fields([
-        'name' => $form_state->getValue('cat'),
-        'email' => $form_state->getValue('email'),
-        'uid' => $this->currentUser()->id(),
-        'created' => date('d-m-Y', $this->currentTime->getCurrentTime()),
-        'image' => $form_state->getValue('image')[0],
-      ])
-      ->execute();
-    \Drupal::messenger()->addMessage($this->t('Form Submitted Successfully'), 'status', TRUE);
+
   }
 
 

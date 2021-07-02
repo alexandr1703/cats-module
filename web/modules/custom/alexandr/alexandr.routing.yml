@@ -2,7 +2,6 @@
 alexandr.form:
   path: '/alexandr/cats'
   defaults:
-    _controller: '\Drupal\alexandr\Controller\AlexandrController::content'
-#    _form: '\Drupal\alexandr\Form\AlexandrForm'
+    _controller: '\Drupal\alexandr\Controller\AlexandrController::report'
   requirements:
     _permission: 'administer site configuration'

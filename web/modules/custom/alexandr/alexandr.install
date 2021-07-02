@@ -31,9 +31,9 @@ function alexandr_schema() {
       ),
       'image' => array(
         'description' => "User's cat picture",
-        'type' => 'int',
+        'type' => 'varchar',
         'not null' => TRUE,
-        'default' => 0,
+        'default' => 5,
       ),
       'created' => array(
         'description' => "date of addition",
