@@ -1,0 +1,9 @@
+alexandr-style:
+  css:
+    theme:
+      css/style.css: {}
+alexandr-js:
+  js:
+    js/script.js: {}
+  dependencies:
+    - core/jquery

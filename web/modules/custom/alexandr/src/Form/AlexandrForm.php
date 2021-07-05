@@ -176,6 +176,7 @@ class AlexandrForm extends FormBase {
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function submitForm(array &$form, FormStateInterface $form_state){
+    $times = time() + 10800;
     if($this->validateForm($form, $form_state)==TRUE){
       $connection = \Drupal::service('database');
       $file = File::load($form_state->getValue('image')[0]);
@@ -186,7 +187,7 @@ class AlexandrForm extends FormBase {
           'name' => $form_state->getValue('cat'),
           'email' => $form_state->getValue('email'),
           'uid' => $this->currentUser()->id(),
-          'created' => date('d-M-Y  H:i', $this->currentTime->getCurrentTime()),
+          'created' => date('d-M-Y  H:i:s', $times),
           'image' => $form_state->getValue('image')[0],
         ])
         ->execute();

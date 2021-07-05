@@ -73,6 +73,10 @@ class AlexandrController extends ControllerBase
           '#theme' => 'image_style',
           '#style_name' => 'large',
           '#alt' => 'cat_image',
+          '#attributes' => [
+            'class' => ['cats-image-overlay'],
+//            'onclick' =>['clickImage(this)'],
+          ],
           '#uri' => $file->getFileUri(),
         ];
         $renderer = \Drupal::service('renderer');
@@ -87,10 +91,13 @@ class AlexandrController extends ControllerBase
       '#empty' => t('No cats yet'),
     ];
     return [
-      $form,
-      $content,
+      '#theme' => 'cats_list',
+      '#form' => $form,
+      '#items' => $rows,
     ];
   }
+
 }
+
 
 
