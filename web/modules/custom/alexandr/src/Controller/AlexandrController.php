@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\alexandr\Controller\AlexandrController::content
- */
-
 namespace Drupal\alexandr\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
@@ -12,21 +7,36 @@ use Drupal\Core\Database\Database;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
+use Drupal\Core\Url;
+use Drupal\Core\Form\FormBase;
 
-
-class AlexandrController extends ControllerBase
-{
+/**
+ * Class AlexandrController.
+ */
+class AlexandrController extends ControllerBase {
+  /**
+   * Form build interface.
+   *
+   * @var Drupal\Core\Form\FormBase
+   */
   protected $formBuilder;
+  /**
+   * {@inheritdoc}
+   */
 
-  public static function create(ContainerInterface $container)
-  {
+  /**
+   * Return instance.
+   */
+  public static function create(ContainerInterface $container) {
     $instance = parent::create($container);
     $instance->formBuilder = $container->get('form_builder');
     return $instance;
   }
 
-  public function content()
-  {
+  /**
+   * Return title and form.
+   */
+  public function content() {
     $myform = \Drupal::formBuilder()->getForm('Drupal\alexandr\Form\AlexandrForm');
     return [
       [
@@ -41,19 +51,40 @@ class AlexandrController extends ControllerBase
     ];
   }
 
-  public function load()
-  {
+  /**
+   * Return delete form.
+   *
+   * @return array
+   *   Array form
+   */
+  public function delete() {
+    $deleteform = \Drupal::formBuilder()->getForm('Drupal\alexandr\Form\DeleteForm');
+    return $deleteform;
+  }
+
+  /**
+   * Get all cats for page.
+   *
+   * @return array
+   *   A simple array.
+   */
+  public function load() {
     $query = Database::getConnection()->select('alexandr', 'a');
-    $query->fields('a', ['name', 'email', 'image', 'created']);
+    $query->fields('a', ['name', 'email', 'image', 'created', 'id']);
     $result = $query->execute()->fetchAll();
     return $result;
   }
 
-
-  public function report()
-  {
-    $content = [];
+  /**
+   * Render table of cats.
+   */
+  public function report() {
+    $url = Url::fromRoute('alexandr.form', []);
+    if ($url->isRouted()) {
+      $out = $url->toString();
+    }
     $form = $this->content();
+    $delete = $this->delete();
     $headers = [
       t('Cat name'),
       t('Email'),
@@ -75,9 +106,9 @@ class AlexandrController extends ControllerBase
           '#alt' => 'cat_image',
           '#attributes' => [
             'class' => ['cats-image-overlay'],
-//            'onclick' =>['clickImage(this)'],
           ],
           '#uri' => $file->getFileUri(),
+
         ];
         $renderer = \Drupal::service('renderer');
         $value['image'] = $renderer->render($value['image']);
@@ -94,10 +125,8 @@ class AlexandrController extends ControllerBase
       '#theme' => 'cats_list',
       '#form' => $form,
       '#items' => $rows,
+      '#delete' => $delete,
     ];
   }
 
 }
-
-
-

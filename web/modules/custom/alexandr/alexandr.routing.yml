@@ -4,4 +4,13 @@ alexandr.form:
   defaults:
     _controller: '\Drupal\alexandr\Controller\AlexandrController::report'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'access content'
+
+
+
+alexandr.delete_form:
+  path: '/alexandr/catsdelete/{cid}'
+  defaults:
+    _form: '\Drupal\alexandr\Form\DeleteForm'
+  requirements:
+    _permission: 'administer nodes'

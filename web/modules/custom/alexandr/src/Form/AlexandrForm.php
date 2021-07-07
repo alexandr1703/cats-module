@@ -2,24 +2,24 @@
 
 namespace Drupal\alexandr\Form;
 
-use Drupal\Core\Ajax\InsertCommand;
 use Drupal\Core\Ajax\RedirectCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\AlertCommand;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\file\Entity\File;
-use Drupal\Core\Url;
 
-
-
-
+/**
+ * Main class.
+ */
 class AlexandrForm extends FormBase {
   /**
-   * The current time.
+   * CurrentTime.
    *
+   * @var currentTime
+   *    current time
    */
   protected $currentTime;
 
@@ -33,31 +33,34 @@ class AlexandrForm extends FormBase {
     return $instance;
   }
 
-
+  /**
+   * Return form.
+   */
   public function getFormId() {
     return 'alexandr_form_cats';
   }
 
+  /**
+   * Build form.
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $form['system_messages'] = [
-      '#markup' => '<div id="form-system-messages"></div>',
+      '#type' => 'html_tag',
+      '#tag' => 'div',
       '#weight' => -100,
+      '#attributes' => [
+        'id' => ['form-system-messages'],
+      ],
     ];
-
-
     $form['email'] = [
       '#type' => 'email',
       '#title' => $this->t('Your email'),
       '#required' => TRUE,
       '#description' => $this->t('Only letters, "_" and "-"'),
       '#ajax' => [
-        'callback' => '::valideEmail',
+        'callback' => '::validateEmail',
         'event' => 'keyup',
-        'progress' => array(
-          'type' => 'throbber',
-          'message' => t('Verifying email..'),
-        ),
       ],
     ];
 
@@ -69,11 +72,13 @@ class AlexandrForm extends FormBase {
       '#minlength' => 2,
       '#description' => $this->t('Please fill in the field from 2 to 32 characters'),
     ];
-
-
     $form['email-messages'] = [
-      '#markup' => '<div id="email-messages"></div>',
+      '#type' => 'html_tag',
+      '#tag' => 'div',
       '#weight' => -100,
+      '#attributes' => [
+        'id' => ['email-messages'],
+      ],
     ];
 
     $form['image'] = [
@@ -87,7 +92,7 @@ class AlexandrForm extends FormBase {
       '#theme' => 'image_widget',
       '#preview_image_style' => 'medium',
       '#upload_location' => 'public://module_image',
-      '#required' => TRUE
+      '#required' => TRUE,
     ];
 
     $form['submit'] = [
@@ -106,6 +111,9 @@ class AlexandrForm extends FormBase {
     return $form;
   }
 
+  /**
+   * Validate form.
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $cat = $form_state->getValue('cat');
     $email = $form_state->getValue('email');
@@ -114,32 +122,35 @@ class AlexandrForm extends FormBase {
     if (strlen($cat) == 1) {
       \Drupal::messenger()->addError('The name is too short. Please enter a longer name.');
     }
-    elseif(strlen($cat) >1) {
-      $errorArray[0]=1;
+    elseif (strlen($cat) > 1) {
+      $errorArray[0] = 1;
     }
     elseif (strlen($cat) == '') {
       \Drupal::messenger()->addError('Enter your cats name');
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]{2,12}+[.]+[a-z]{2,7}+$/', $email)) {
       \Drupal::messenger()->addError($this->t('Enter valid Email'));
-      $errorArray[1]=0;
+      $errorArray[1] = 0;
     }
-    else{
-      $errorArray[1]=1;
+    else {
+      $errorArray[1] = 1;
     }
-    if ($image){
-      $errorArray[2]=1;
+    if ($image) {
+      $errorArray[2] = 1;
     }
-    else{
+    else {
       \Drupal::messenger()->addError($this->t('Download image'));
     }
-    if ($errorArray[0]==1 && $errorArray[1]==1 && $errorArray[2]==1){
-      \Drupal::messenger()->addMessage($this->t('Your cat name: %cat . Form submited)))', ['%cat' => $cat] ));
+    if ($errorArray[0] == 1 && $errorArray[1] == 1 && $errorArray[2] == 1) {
+      \Drupal::messenger()->addMessage($this->t('Your cat name: %cat . Form submited)))', ['%cat' => $cat]));
       return TRUE;
     }
   }
 
-  public function valideEmail(array &$form, FormStateInterface $form_state){
+  /**
+   * Ajax validate email.
+   */
+  public function validateEmail(array &$form, FormStateInterface $form_state) {
     $ajax_response = new AjaxResponse();
     $email = $form_state->getValue('email');
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]{2,12}+[.]+[a-z]{2,7}+$/', $email)) {
@@ -151,6 +162,9 @@ class AlexandrForm extends FormBase {
     return $ajax_response;
   }
 
+  /**
+   * Ajax callback validate.
+   */
   public function ajaxSubmitCallback(array &$form, FormStateInterface $form_state) {
     $ajax_response = new AjaxResponse();
     $message = [
@@ -165,19 +179,24 @@ class AlexandrForm extends FormBase {
     $messages = \Drupal::service('renderer')->render($message);
     $ajax_response->addCommand(new HtmlCommand('#form-system-messages', $messages));
     $this->messenger()->deleteAll();
-    if($this->validateForm($form, $form_state)==TRUE){
-      $ajax_response->addCommand(new RedirectCommand('/alexandr/cats'));
+    if ($this->validateForm($form, $form_state) == TRUE) {
+      $url = Url::fromRoute('alexandr.form', []);
+      if ($url->isRouted()) {
+        $out = $url->toString();
+      }
+      $ajax_response->addCommand(new RedirectCommand($out));
     }
     return $ajax_response;
   }
 
-
   /**
+   * Wrote fields into database.
+   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function submitForm(array &$form, FormStateInterface $form_state){
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $times = time() + 10800;
-    if($this->validateForm($form, $form_state)==TRUE){
+    if ($this->validateForm($form, $form_state) == TRUE) {
       $connection = \Drupal::service('database');
       $file = File::load($form_state->getValue('image')[0]);
       $file->setPermanent();
@@ -192,12 +211,7 @@ class AlexandrForm extends FormBase {
         ])
         ->execute();
     }
-
-
   }
 
-
 }
-
-
 

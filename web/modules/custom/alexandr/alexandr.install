@@ -1,49 +1,53 @@
 <?php
+
+/**
+ * Create database().
+ */
 function alexandr_schema() {
-  $schema['alexandr'] = array(
+  $schema['alexandr'] = [
     'description' => 'stores cats',
-    'fields' => array(
-      'id' => array(
+    'fields' => [
+      'id' => [
         'description' => "Cats ID",
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-      'uid' => array(
+      ],
+      'uid' => [
         'description' => "UID user",
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'name' => array(
+      ],
+      'name' => [
         'description' => "User's cat name",
         'type' => 'varchar',
         'length' => 32,
         'not null' => FALSE,
         'default' => '',
-      ),
-      'email' => array(
+      ],
+      'email' => [
         'description' => "User's email address",
         'type' => 'varchar',
         'length' => 64,
         'not null' => FALSE,
         'default' => '',
-      ),
-      'image' => array(
+      ],
+      'image' => [
         'description' => "User's cat picture",
         'type' => 'varchar',
         'not null' => TRUE,
         'default' => 5,
-      ),
-      'created' => array(
+      ],
+      'created' => [
         'description' => "date of addition",
         'type' => 'varchar',
         'length' => 64,
         'not null' => FALSE,
         'default' => '',
-      ),
-    ),
-    'primary key' => array('id'),
-  );
+      ],
+    ],
+    'primary key' => ('id'),
+  ];
   return $schema;
 }

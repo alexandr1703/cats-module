@@ -5,12 +5,18 @@
 </div>
 {% for item in items %}
   <div class="row cats-block">
-    <div class="col-md-4 offset-md-3 cats-text">
+    <div class="col-md-6  col-sm-12 cats-text">
       <a><p><span>{{ 'Name:'|trans }} </span>{{ item.name }}</p></a>
       <p><span>{{ 'Email:'|trans }} </span>{{ item.email }}</p>
       <p><span>{{ 'Submitted:'|trans }} </span>{{ item.created }}</p>
+      <div class="buttons-cat">
+        {% if user.hasPermission('administer nodes') %}
+          <a href="/alexandr/catsdelete/{{ item.id }}" class="button-cat use-ajax" data-dialog-type="modal">{{ 'Delete'|trans }}</a>
+          <a href="#" class="button-cat">{{ 'Edit' |trans }}</a>
+        {% endif %}
+      </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-6 col-sm-12">
       <div class="image-cat" onclick ='clickImage(this)'>{{ item.image }}</div>
     </div>
   </div>
