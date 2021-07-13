@@ -12,7 +12,7 @@
       <div class="buttons-cat">
         {% if user.hasPermission('administer nodes') %}
           <a href="/alexandr/catsdelete/{{ item.id }}" class="button-cat use-ajax" data-dialog-type="modal">{{ 'Delete'|trans }}</a>
-          <a href="#" class="button-cat">{{ 'Edit' |trans }}</a>
+          <a href="/alexandr/catsedit/{{ item.id }}" class="button-cat use-ajax" data-dialog-type="modal">{{ 'Edit' |trans }}</a>
         {% endif %}
       </div>
     </div>

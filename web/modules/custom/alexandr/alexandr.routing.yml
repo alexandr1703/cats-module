@@ -14,3 +14,11 @@ alexandr.delete_form:
     _form: '\Drupal\alexandr\Form\DeleteForm'
   requirements:
     _permission: 'administer nodes'
+
+
+alexandr.edit_form:
+  path: '/alexandr/catsedit/{cid}'
+  defaults:
+    _form: '\Drupal\alexandr\Form\EditForm'
+  requirements:
+    _permission: 'administer nodes'

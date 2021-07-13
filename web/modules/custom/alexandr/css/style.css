@@ -6,6 +6,7 @@
   float: right;
   border-radius: 50%;
   border: 5px solid #1a23bf;
+  object-fit: cover;
 }
 .overlay {
   display: block;

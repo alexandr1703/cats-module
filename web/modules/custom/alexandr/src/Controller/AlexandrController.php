@@ -20,9 +20,6 @@ class AlexandrController extends ControllerBase {
    * @var Drupal\Core\Form\FormBase
    */
   protected $formBuilder;
-  /**
-   * {@inheritdoc}
-   */
 
   /**
    * Return instance.
@@ -63,6 +60,17 @@ class AlexandrController extends ControllerBase {
   }
 
   /**
+   * Return delete form.
+   *
+   * @return array
+   *   Array form
+   */
+  public function edit() {
+    $editform = \Drupal::formBuilder()->getForm('Drupal\alexandr\Form\EditForm');
+    return $editform;
+  }
+
+  /**
    * Get all cats for page.
    *
    * @return array
@@ -85,6 +93,7 @@ class AlexandrController extends ControllerBase {
     }
     $form = $this->content();
     $delete = $this->delete();
+    $edit = $this->edit();
     $headers = [
       t('Cat name'),
       t('Email'),
@@ -126,6 +135,7 @@ class AlexandrController extends ControllerBase {
       '#form' => $form,
       '#items' => $rows,
       '#delete' => $delete,
+      '#edit' => $edit,
     ];
   }
 

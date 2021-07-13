@@ -44,7 +44,6 @@ class AlexandrForm extends FormBase {
    * Build form.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
     $form['system_messages'] = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -179,6 +178,7 @@ class AlexandrForm extends FormBase {
     $messages = \Drupal::service('renderer')->render($message);
     $ajax_response->addCommand(new HtmlCommand('#form-system-messages', $messages));
     $this->messenger()->deleteAll();
+    $out = "";
     if ($this->validateForm($form, $form_state) == TRUE) {
       $url = Url::fromRoute('alexandr.form', []);
       if ($url->isRouted()) {
@@ -191,8 +191,6 @@ class AlexandrForm extends FormBase {
 
   /**
    * Wrote fields into database.
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $times = time() + 10800;
@@ -214,4 +212,3 @@ class AlexandrForm extends FormBase {
   }
 
 }
-
