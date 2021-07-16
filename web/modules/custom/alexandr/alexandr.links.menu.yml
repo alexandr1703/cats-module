@@ -1,0 +1,6 @@
+alexandr.admin_settings_form:
+  title: 'Cats list'
+  route_name: alexandr.admin_settings_form
+  description: 'All cats'
+  parent: system.admin_structure
+  weight: 99

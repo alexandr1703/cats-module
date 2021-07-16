@@ -8,7 +8,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\Core\Url;
-use Drupal\Core\Form\FormBase;
 
 /**
  * Class AlexandrController.

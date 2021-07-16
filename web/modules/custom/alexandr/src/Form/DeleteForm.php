@@ -51,7 +51,7 @@ class DeleteForm extends FormBase {
       ],
     ];
     $form['cancel'] = [
-      '#type' => 'submit',
+      '#type' => 'button',
       '#value' => t('No'),
       '#ajax' => [
         'callback' => '::ajaxFormCancel',
@@ -62,22 +62,14 @@ class DeleteForm extends FormBase {
       ],
       '#attributes' => [
         'class' => ['btn-no'],
+        'onclick' => 'closeModal',
       ],
     ];
     $this->ctid = $cid;
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $connection = \Drupal::service('database');
-    $result = $connection->delete('alexandr');
-    $result->condition('id', $this->ctid);
-    $result->execute();
-    \Drupal::messenger()->addMessage($this->t('Entry deleted successfully'), 'status', TRUE);
-  }
+
 
   /**
    * Function Submit.
@@ -87,8 +79,9 @@ class DeleteForm extends FormBase {
     $url = Url::fromRoute('alexandr.form', []);
     if ($url->isRouted()) {
       $out = $url->toString();
+      $response->addCommand(new RedirectCommand($out));
+
     }
-    $response->addCommand(new RedirectCommand($out));
     return $response;
   }
 
@@ -96,11 +89,21 @@ class DeleteForm extends FormBase {
    * Function Cancel.
    */
   public function ajaxFormCancel(array &$form, FormStateInterface $form_state) {
-    $response = new AjaxResponse();
     $command = new CloseModalDialogCommand();
     $response = new AjaxResponse();
     $response->addCommand($command);
     return $response;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+      $connection = \Drupal::service('database');
+      $result = $connection->delete('alexandr');
+      $result->condition('id', $this->ctid);
+      $result->execute();
+      \Drupal::messenger()->addMessage($this->t('Entry deleted successfully'), 'status', TRUE);
   }
 
 }

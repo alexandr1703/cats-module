@@ -16,9 +16,39 @@ alexandr.delete_form:
     _permission: 'administer nodes'
 
 
+
+alexandr.admin_delete_form:
+  path: '/alexandr/admincatsdelete/{cid}'
+  defaults:
+    _form: '\Drupal\alexandr\Form\AdminDeleteForm'
+  requirements:
+    _permission: 'administer nodes'
+
+
+
 alexandr.edit_form:
   path: '/alexandr/catsedit/{cid}'
   defaults:
     _form: '\Drupal\alexandr\Form\EditForm'
   requirements:
     _permission: 'administer nodes'
+
+
+
+alexandr.admin_edit_form:
+  path: '/alexandr/admincatsedit/{cid}'
+  defaults:
+    _form: '\Drupal\alexandr\Form\AdminEditForm'
+  requirements:
+    _permission: 'administer nodes'
+
+
+
+alexandr.admin_settings_form:
+  path: '/admin/structure/cats'
+  defaults:
+    _form: '\Drupal\alexandr\Form\AlexandrAdminForm'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
