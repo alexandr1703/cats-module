@@ -34,7 +34,6 @@ alexandr.edit_form:
     _permission: 'administer nodes'
 
 
-
 alexandr.admin_edit_form:
   path: '/alexandr/admincatsedit/{cid}'
   defaults:
